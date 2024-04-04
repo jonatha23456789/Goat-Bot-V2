@@ -18,8 +18,7 @@
   },
   "adminBot": [
     "100081169801569",
-    "100074714075081",
-  ],
+    "100074714075081"],
   "whiteListMode": {
     "enable": false,
     "whiteListIds": [],
