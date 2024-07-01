@@ -1,96 +1,77 @@
-const fs = require("fs");
-const path = require("path");
-const axios = require("axios");
-const tinyurl = require('tinyurl');
+const axios = require('axios');
+const path = require('path');
+const fs = require('fs-extra');
+
+async function checkAuthor(authorName) {
+  try {
+    const response = await axios.get('https://author-check.vercel.app/name');
+    const apiAuthor = response.data.name;
+    return apiAuthor === authorName;
+  } catch (error) {
+    console.error("Error checking author:", error);
+    return false;
+  }
+}
 
 module.exports = {
   config: {
     name: "imagine",
-    aliases: [],
+    aliases: ["imagine"],
     version: "1.0",
-    author: "Kshitiz",
-    countDown: 20,
+    author: "Vex_Kshitiz",
+    countDown: 50,
     role: 0,
-    shortDescription: "Generate an anime style image.",
-    longDescription: "Generate an anime style image",
+    longDescription: {
+      vi: '',
+      en: "Imagine"
+    },
     category: "ai",
     guide: {
-      en: "{p}imagine [prompt] | [model]"
+      vi: '',
+      en: "{pn} <prompt> - <ratio>"
     }
   },
-  onStart: async function ({ message, event, args, api }) {
-    api.setMessageReaction("🕐", event.messageID, (err) => {}, true);
+
+  onStart: async function ({ api, commandName, event, args }) {
     try {
-      let imageUrl = null;
-      let prompt = '';
+      api.setMessageReaction("✅", event.messageID, () => {}, true);
 
-      if (event.type === "message_reply") {
-        const attachment = event.messageReply.attachments[0];
-        if (!attachment || !["photo", "sticker"].includes(attachment.type)) {
-          return message.reply("ayo reply to an image");
+      const isAuthorValid = await checkAuthor(module.exports.config.author);
+      if (!isAuthorValid) {
+        api.sendMessage({ body: "Author changer alert! This cmd belongs to Vex_Kshitiz." }, event.threadID, event.messageID);
+        api.setMessageReaction("❌", event.messageID, () => {}, true);
+        return;
+      }
+
+      let prompt = args.join(' ');
+      let ratio = '1:1';
+
+      if (args.length > 0 && args.includes('-')) {
+        const parts = args.join(' ').split('-').map(part => part.trim());
+        if (parts.length === 2) {
+          prompt = parts[0];
+          ratio = parts[1];
         }
-        imageUrl = attachment.url;
-      } else if (args.length > 0 && args[0].startsWith("http")) {
-        imageUrl = args[0];
-      } else if (args.length > 0) {
-        prompt = args.join(" ").trim();
-      } else {
-        return message.reply("Please reply to an image or provide vaild prompt.");
       }
 
-      if (imageUrl) {
-        const shortUrl = await tinyurl.shorten(imageUrl);
-        const promptResponse = await axios.get(`https://www.api.vyturex.com/describe?url=${encodeURIComponent(shortUrl)}`);
-        prompt = promptResponse.data;
+      const response = await axios.get(`https://imagine-kshitiz-9vpt.onrender.com/kshitiz?prompt=${encodeURIComponent(prompt)}&ratio=${encodeURIComponent(ratio)}`);
+      const imageUrls = response.data.imageUrls;
+
+      const imgData = [];
+      const numberOfImages = 4;
+
+      for (let i = 0; i < Math.min(numberOfImages, imageUrls.length); i++) {
+        const imageUrl = imageUrls[i];
+        const imgResponse = await axios.get(imageUrl, { responseType: 'arraybuffer' });
+        const imgPath = path.join(__dirname, 'cache', `${i + 1}.jpg`);
+        await fs.outputFile(imgPath, imgResponse.data);
+        imgData.push(fs.createReadStream(imgPath));
       }
 
-      const promptApiUrl = `https://text2image-wine.vercel.app/kshitiz?prompt=${encodeURIComponent(prompt)}&model=1`;
-      const response = await axios.get(promptApiUrl);
-      const { task_id } = response.data;
-
-      const progressApiUrl = `https://progress-black.vercel.app/progress?imageid=${task_id}`;
-
-      let imgDownloadLink = null;
-
-      while (!imgDownloadLink) {
-        const progressResponse = await axios.get(progressApiUrl);
-        const { status, imgs } = progressResponse.data.data;
-
-        if (status === 2 && imgs && imgs.length > 0) {
-          imgDownloadLink = imgs[0];
-        }
-
-        await new Promise(resolve => setTimeout(resolve, 5000));
-      }
-
-      const cacheFolderPath = path.join(__dirname, "/cache");
-      if (!fs.existsSync(cacheFolderPath)) {
-        fs.mkdirSync(cacheFolderPath);
-      }
-      const imagePath = path.join(cacheFolderPath, `${task_id}.png`);
-      const writer = fs.createWriteStream(imagePath);
-      const imageResponse = await axios({
-        url: imgDownloadLink,
-        method: 'GET',
-        responseType: 'stream'
-      });
-
-      imageResponse.data.pipe(writer);
-
-      await new Promise((resolve, reject) => {
-        writer.on('finish', resolve);
-        writer.on('error', reject);
-      });
-
-      const stream = fs.createReadStream(imagePath);
-      await message.reply({
-        body: "",
-        attachment: stream
-      });
-
+      await api.sendMessage({ body: '', attachment: imgData }, event.threadID, event.messageID);
     } catch (error) {
-      console.error("Error:", error.message);
-      message.reply("❌ | An error occurred. Please try again later.");
+      console.error("Error:", error);
+      api.sendMessage("error contact kshitiz", event.threadID, event.messageID);
     }
   }
 };
