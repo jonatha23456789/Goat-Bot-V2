@@ -17,17 +17,17 @@
     "ignoreCommand": []
   },
   "adminBot": [
-    "100087638424159",
-    "100074714075081",
-    "100081530976130",
-    "100081169801569"],
+    "",
+    "",
+    "61554245590654",
+    ""],
   "whiteListMode": {
     "enable": false,
     "whiteListIds": [],
     "notes": "if you enable this feature, only the ids in the whiteListIds section can use the bot"
   },
-  "nickNameBot": " ☯︎╬╩𝗠𝗮𝘆𝘂𝗲𝗹𝗹𝗮~𝗟𝗶𝗲𝗮╩╬☯",
-  "prefix": "°",
+  "nickNameBot": " ☯︎╬╩𝗟𝗢𝗩𝗘𝗟𝗬╩╬☯",
+  "prefix": ".",
   "database": {
     "type": "sqlite",
     "uriMongodb": "",
@@ -111,8 +111,8 @@
   "hideNotiMessage": {
     "commandNotFound": false,
     "adminOnly": false,
-    "threadBanned": false,
-    "userBanned": false,
+    "threadBanned": true,
+    "userBanned": true,
     "needRoleToUseCmd": false,
     "needRoleToUseCmdOnReply": false,
     "needRoleToUseCmdOnReaction": false
