@@ -1,4 +1,5 @@
 const axios = require('axios');
+const moment = require('moment-timezone');
 
 module.exports = {
 	config: {
@@ -21,6 +22,11 @@ onChat: async function ({ api, event }) {
 const args = message.split(/\s+/);
   args.shift();
 
+const cameroonTime = moment.tz('centralAfrica/cameroon');
+
+
+        const date = CameroonTime.format('MMMM D, YYYY h:mm A');
+
 try {
 const { messageID, messageReply } = event;
  let prompt = args.join(' ');
@@ -31,11 +37,11 @@ if (messageReply) {
  }
      if (!prompt) {
 
-      return api.sendMessage('🖤| 𝖧𝖾𝗅𝗅𝗈, 𝖨 𝖺𝗆 lovely  𝖠𝗂\n\n𝖧𝗈𝗐 𝗆𝖺𝗒 𝗂 𝖺𝗌𝗌𝗂𝗌𝗍 𝗒𝗈𝗎 𝗍𝗈𝖽𝖺𝗒?', event.threadID, messageID);
+      return api.sendMessage('💚 | 𝖧𝖾𝗅𝗅𝗈, 𝖨 𝖺𝗆 LOVELY  𝖠𝗂\n\n𝖧𝗈𝗐 𝗆𝖺𝗒 𝗂 𝖺𝗌𝗌𝗂𝗌𝗍 𝗒𝗈𝗎 𝗍𝗈𝖽𝖺𝗒?', event.threadID, messageID);
         }
-        api.sendMessage('💜 | lovely 𝖠𝗂 𝗂𝗌 𝗌𝖾𝖺𝗋𝖼𝗁𝗂𝗇𝗀, 𝗉𝗅𝖾𝖺𝗌𝖾 𝗐𝖺𝗂𝗍..', event.threadID);    
+        api.sendMessage('❤️ | LOVELY  𝖠𝗂 𝗂𝗌 𝗌𝖾𝖺𝗋𝖼𝗁𝗂𝗇𝗀, 𝗉𝗅𝖾𝖺𝗌𝖾 𝗐𝖺𝗂𝗍..', event.threadID);    
 
-      const gpt4 = `https://kaizenji-gpt4-c9e42d1f2acf.herokuapp.com/api/gpt4?ask=${encodeURIComponent(prompt)}`;
+      const gpt4 = `https://kai-gpt4-5e4314203253.herokuapp.com/api/gpt4?ask=${encodeURIComponent(prompt)}`;
       
      const response = await axios.get(gpt4);
 
@@ -43,7 +49,7 @@ if (messageReply) {
 
             const generatedText = response.data.answer;
 
-               api.sendMessage(`🤍 | lovely 𝖠𝗂 \n\n𝗔𝗻𝘀𝘄𝗲𝗿: ${generatedText}`, event.threadID, messageID);
+               api.sendMessage(`💛 | LOVELY 𝖠𝗂 \n\n𝗔𝗻𝘀𝘄𝗲𝗿: ${generatedText}\n\n⏰ | 🗓️: ${date}`, event.threadID, messageID);
 
         } else {
 
